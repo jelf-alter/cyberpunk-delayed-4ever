@@ -63,7 +63,7 @@ def get_single_fire_hits(rounds,distance,modifier_sum):
     return hit_num
 
 def get_three_round_burst_hits(rounds,distance,modifier_sum):
-    print("Firing 3-round burst at {1} range with modifier {2}".format(distance.lower(),modifier_sum))
+    print("Firing 3-round burst at {1} range with modifier {2}".format(rounds,distance.lower(),modifier_sum))
     if distance == "Long" or distance == "Extreme":
         pass
     else:
