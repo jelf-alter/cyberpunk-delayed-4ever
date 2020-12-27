@@ -77,7 +77,7 @@ def get_three_round_burst_hits(rounds,distance,modifier_sum):
     else:
         hit_score += modifier_sum
         if hit_score >= to_hit:
-            hit_num = dice.roll('1d3')
+            hit_num = sum(dice.roll('1d3'))
         else:
             hit_num = 0
     print("Hit {0} rounds".format(hit_num))
