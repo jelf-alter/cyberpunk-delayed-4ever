@@ -115,9 +115,9 @@ def attack(weapon,firing_mode,rounds,distance,modifier_subtotal,aim):
     if firing_mode == "Automatic":
         hit_num = get_automatic_fire_hits(rounds,distance,modifier_sum)
     elif firing_mode == "Burst":
-        hit_num = get_three_round_burst_hits(rounds,distance,modifier_sum):
+        hit_num = get_three_round_burst_hits(rounds,distance,modifier_sum)
     elif firing_mode == "Single":
-        hit_num = get_single_fire_hits(rounds,distance,modifier_sum):
+        hit_num = get_single_fire_hits(rounds,distance,modifier_sum)
     elif firing_mode == "Suppress":
         hit_num = 1 #Placeholder
         
@@ -136,4 +136,3 @@ def attack(weapon,firing_mode,rounds,distance,modifier_subtotal,aim):
         print("{0} dmg to {1}".format(hit[1],hit[0]))
         
     return hit_list
-    
