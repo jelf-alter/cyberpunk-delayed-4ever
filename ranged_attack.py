@@ -43,7 +43,7 @@ def get_base_dmgs(weapon,hit_num):
         dmgs.append(dmg)
     return dmgs
 
-def reliability_roll(weapon,firing_mode):
+def reliability_roll(weapon):
     print('Rolling for weapon reliability')
     
     #reliability = weapon.reliability
@@ -65,7 +65,7 @@ def reliability_roll(weapon,firing_mode):
         print('Weapon jammed! {0} turns to unjam')
     return unjam_time
 
-def get_single_fire_hits(rounds,distance,modifier_sum):
+def get_single_fire_hits(weapon,rounds,distance,modifier_sum):
     print("Firing {0} rounds at {1} range with modifier {2}".format(distance.lower(),modifier_sum))
     to_hit = get_to_hit(distance)
     hit_num = 0
@@ -73,6 +73,7 @@ def get_single_fire_hits(rounds,distance,modifier_sum):
         hit_score = sum(dice.roll('1d10'))
         if hit_score == 1:
             hit_num = 0
+            reliability_roll(weapon)
         else:
             if hit_score == 10:
                 hit_score += sum(dice.roll('1d10'))
@@ -84,7 +85,7 @@ def get_single_fire_hits(rounds,distance,modifier_sum):
     print("Hit {0} rounds".format(hit_num))
     return hit_num
 
-def get_three_round_burst_hits(rounds,distance,modifier_sum):
+def get_three_round_burst_hits(weapon,rounds,distance,modifier_sum):
     print("Firing 3-round burst at {1} range with modifier {2}".format(rounds,distance.lower(),modifier_sum))
     if distance == "Long" or distance == "Extreme":
         pass
@@ -94,6 +95,7 @@ def get_three_round_burst_hits(rounds,distance,modifier_sum):
     hit_score = sum(dice.roll('1d10'))
     if hit_score == 1:
         hit_num = 0
+        reliability_roll(weapon)
     else:
         if hit_score == 10:
             hit_score += sum(dice.roll('1d10'))
@@ -105,7 +107,7 @@ def get_three_round_burst_hits(rounds,distance,modifier_sum):
     print("Hit {0} rounds".format(hit_num))
     return hit_num
         
-def get_automatic_fire_hits(rounds,distance,modifier_sum):
+def get_automatic_fire_hits(weapon,rounds,distance,modifier_sum):
     print("Firing {0} rounds full-auto at {1} range with modifier {2}".format(rounds,distance.lower(),modifier_sum))
     if distance == "Close" or distance == "Point Blank":
         modifier_sum += int(rounds/10)
@@ -116,6 +118,7 @@ def get_automatic_fire_hits(rounds,distance,modifier_sum):
     print("Rolled a "+str(hit_score))
     if hit_score == 1:
         hit_num = 0
+        reliability_roll(weapon)
     else:
         if hit_score == 10:
             hit_score += sum(dice.roll('1d10'))
@@ -148,13 +151,13 @@ def attack(weapon,firing_mode,rounds,distance,modifier_subtotal="0",aim="No",sup
         modifier_sum = modifier_subtotal - 4
         
     if firing_mode == "Automatic":
-        hit_num = get_automatic_fire_hits(rounds,distance,modifier_sum)
+        hit_num = get_automatic_fire_hits(weapon,rounds,distance,modifier_sum)
     elif firing_mode == "Burst":
-        hit_num = get_three_round_burst_hits(rounds,distance,modifier_sum)
+        hit_num = get_three_round_burst_hits(weapon,rounds,distance,modifier_sum)
     elif firing_mode == "Single":
-        hit_num = get_single_fire_hits(rounds,distance,modifier_sum)
+        hit_num = get_single_fire_hits(weapon,rounds,distance,modifier_sum)
     elif firing_mode == "Suppress":
-        hit_num = get_suppressive_fire_hits(rounds,fire_zone_area,suppress_save_modifier)
+        hit_num = get_suppressive_fire_hits(weapon,rounds,fire_zone_area,suppress_save_modifier)
         
     if aim=="No":
         hit_locations = get_hit_locations(hit_num)
