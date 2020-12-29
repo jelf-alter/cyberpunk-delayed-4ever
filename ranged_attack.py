@@ -104,7 +104,20 @@ def get_automatic_fire_hits(rounds,distance,modifier_sum):
     print("Hit {0} rounds".format(hit_num))
     return hit_num
     
-def attack(weapon,firing_mode,rounds,distance,modifier_subtotal,aim):
+ def get_suppressive_fire_hits(weapon,rounds,fire_zone_area,suppress_save_modifier):
+    print("Suppressing a {0}-meter area with {1} rounds".format(fire_zone_area,rounds))
+    suppression_save_check = rounds / fire_zone
+    save_roll = sum(dice.roll(1d10))
+    print("Rolled a "+str(save_roll)))
+    save_roll += suppress_save_modifier
+    if save_roll >= suppression_save_check:
+        hit_num = 0
+    else:
+        hit_num = sum(dice.roll(1d10))
+    print("Hit {0} rounds".format(hit_num))
+    return hit_num
+    
+def attack(weapon,firing_mode,rounds,distance,modifier_subtotal="0",aim="No",suppress_save_modifier="0",fire_zone_area="2"):
     #modifier_subtotal += weapon.wa
     
     if aim=="No":
@@ -119,7 +132,7 @@ def attack(weapon,firing_mode,rounds,distance,modifier_subtotal,aim):
     elif firing_mode == "Single":
         hit_num = get_single_fire_hits(rounds,distance,modifier_sum)
     elif firing_mode == "Suppress":
-        hit_num = 1 #Placeholder
+        hit_num = get_suppressive_fire_hits(rounds,fire_zone_area,suppress_save_modifier)
         
     if aim=="No":
         hit_locations = get_hit_locations(hit_num)
