@@ -43,6 +43,28 @@ def get_base_dmgs(weapon,hit_num):
         dmgs.append(dmg)
     return dmgs
 
+def reliability_roll(weapon,firing_mode):
+    print('Rolling for weapon reliability')
+    
+    #reliability = weapon.reliability
+    reliability = 'ST' #Placeholder
+    
+    jam_table = {"VR":3,
+                 "ST":5,
+                 "UR":8}
+    jam_check = jam_table[reliability]
+    
+    jam_roll = sum(dice.roll('1d10'))
+    print('Rolled a {0}'.format(jam_roll))
+    
+    if jam_roll >= jam_check:
+        unjam_time = 0
+        print('No jam!')
+    elif jam_roll < jam_check:
+        unjam_time = sum(dice.roll('1d6'))
+        print('Weapon jammed! {0} turns to unjam')
+    return unjam_time
+
 def get_single_fire_hits(rounds,distance,modifier_sum):
     print("Firing {0} rounds at {1} range with modifier {2}".format(distance.lower(),modifier_sum))
     to_hit = get_to_hit(distance)
@@ -51,9 +73,9 @@ def get_single_fire_hits(rounds,distance,modifier_sum):
         hit_score = sum(dice.roll('1d10'))
         if hit_score == 1:
             hit_num = 0
-        elif hit_score == 10:
-            hit_score += sum(dice.roll('1d10'))
         else:
+            if hit_score == 10:
+                hit_score += sum(dice.roll('1d10'))
             hit_score += modifier_sum
             if hit_score >= to_hit:
                 hit_num += 1
@@ -72,9 +94,9 @@ def get_three_round_burst_hits(rounds,distance,modifier_sum):
     hit_score = sum(dice.roll('1d10'))
     if hit_score == 1:
         hit_num = 0
-    elif hit_score == 10:
-        hit_score += sum(dice.roll('1d10'))
     else:
+        if hit_score == 10:
+            hit_score += sum(dice.roll('1d10'))
         hit_score += modifier_sum
         if hit_score >= to_hit:
             hit_num = sum(dice.roll('1d3'))
@@ -94,9 +116,9 @@ def get_automatic_fire_hits(rounds,distance,modifier_sum):
     print("Rolled a "+str(hit_score))
     if hit_score == 1:
         hit_num = 0
-    elif hit_score == 10:
-        hit_score += sum(dice.roll('1d10'))
     else:
+        if hit_score == 10:
+            hit_score += sum(dice.roll('1d10'))
         hit_score += modifier_sum
         hit_num = hit_score - to_hit
         hit_num_bounded = lambda x, l, u: l if x < l else u if x > u else x
