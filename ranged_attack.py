@@ -62,18 +62,45 @@ def reliability_roll(weapon):
         print('No jam!')
     elif jam_roll < jam_check:
         unjam_time = sum(dice.roll('1d6'))
-        print('Weapon jammed! {0} turns to unjam')
+        print('Weapon jammed! {0} turns to unjam'.format(unjam_time))
     return unjam_time
+    
+def combat_fumble_roll(weapon):
+    print('Rolling for combat fumble')
+    
+    fumble_roll = sum(dice.roll('1d10'))
+    print('Rolled a {0}'.format(fumble_roll))
+    
+    if fumble_roll <= 4:
+        print("No fumble. You just screw up.")
+    elif fumble_roll == 5:
+        print("You drop your weapon.")
+    elif fumble_roll == 6:
+        print("Weapon discharges or strikes something harmiess.")
+        reliability_roll(weapon)
+    elif fumble_roll == 7:
+        print("Weapon jams or imbeds itself in the ground for one turn.")
+        reliability_roll(weapon)
+    elif fumble_roll == 8:
+        print("You manage to to wound yourself. Roll for location.")
+        ranged_hits(weapon,hit_num=1,aim='No')
+    elif fumble_roll <= 10:
+        print("You manage to wound a member of your own party.")
+        ranged_hits(weapon,hit_num=1,aim='No')
+    else:
+        pass
+    return None
 
 def get_single_fire_hits(weapon,rounds,distance,modifier_sum):
-    print("Firing {0} rounds at {1} range with modifier {2}".format(distance.lower(),modifier_sum))
+    print("Firing {0} rounds at {1} range with modifier {2}".format(rounds,distance.lower(),modifier_sum))
     to_hit = get_to_hit(distance)
     hit_num = 0
     for i in range(rounds):
         hit_score = sum(dice.roll('1d10'))
+        print("Rolled a "+str(hit_score))
         if hit_score == 1:
-            hit_num = 0
-            reliability_roll(weapon)
+            combat_fumble_roll(weapon)
+            break #assuming a critical fail ends the attack even if you have ROF left
         else:
             if hit_score == 10:
                 hit_score += sum(dice.roll('1d10'))
@@ -93,6 +120,7 @@ def get_three_round_burst_hits(weapon,rounds,distance,modifier_sum):
         modifier_sum += 3
     to_hit = get_to_hit(distance)
     hit_score = sum(dice.roll('1d10'))
+    print("Rolled a "+str(hit_score))
     if hit_score == 1:
         hit_num = 0
         reliability_roll(weapon)
@@ -129,18 +157,35 @@ def get_automatic_fire_hits(weapon,rounds,distance,modifier_sum):
     print("Hit {0} rounds".format(hit_num))
     return hit_num
     
- def get_suppressive_fire_hits(weapon,rounds,fire_zone_area,suppress_save_modifier):
+def get_suppressive_fire_hits(weapon,rounds,fire_zone_area,suppress_save_modifier):
     print("Suppressing a {0}-meter area with {1} rounds".format(fire_zone_area,rounds))
     suppression_save_check = rounds / fire_zone
-    save_roll = sum(dice.roll(1d10))
-    print("Rolled a "+str(save_roll)))
+    save_roll = sum(dice.roll('1d10'))
+    print("Rolled a "+str(save_roll))
     save_roll += suppress_save_modifier
     if save_roll >= suppression_save_check:
         hit_num = 0
     else:
-        hit_num = sum(dice.roll(1d10))
+        hit_num = sum(dice.roll('1d10'))
     print("Hit {0} rounds".format(hit_num))
     return hit_num
+
+def ranged_hits(weapon,hit_num,aim):
+    if aim=="No":
+        hit_locations = get_hit_locations(hit_num)
+    else:
+        hit_locations = [aim for i in distance(hit_num)]
+        
+    base_dmgs = get_base_dmgs(weapon,hit_num)
+    
+    hit_list = []
+    
+    for i in range(hit_num):
+        hit = (hit_locations[i],base_dmgs[i])
+        hit_list.append(hit)
+        print("{0} dmg to {1}".format(hit[1],hit[0]))
+        
+    return hit_list
     
 def attack(weapon,firing_mode,rounds,distance,modifier_subtotal="0",aim="No",suppress_save_modifier="0",fire_zone_area="2"):
     #modifier_subtotal += weapon.wa
@@ -159,18 +204,6 @@ def attack(weapon,firing_mode,rounds,distance,modifier_subtotal="0",aim="No",sup
     elif firing_mode == "Suppress":
         hit_num = get_suppressive_fire_hits(weapon,rounds,fire_zone_area,suppress_save_modifier)
         
-    if aim=="No":
-        hit_locations = get_hit_locations(hit_num)
-    else:
-        hit_locations = [aim for i in distance(hit_num)]
-        
-    base_dmgs = get_base_dmgs(weapon,hit_num)
-    
-    hit_list = []
-    
-    for i in range(hit_num):
-        hit = (hit_locations[i],base_dmgs[i])
-        hit_list.append(hit)
-        print("{0} dmg to {1}".format(hit[1],hit[0]))
+    hit_list = ranged_hits(weapon,hit_num,aim)
         
     return hit_list
